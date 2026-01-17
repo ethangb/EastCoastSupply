@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BtownGas | Full Menu</title>
+    <style>
+        :root { --primary: #1b3d16; --accent: #2ecc71; --bg: #0a0a0a; --card: #151515; --text: #ffffff; --snap: #e6e300; }
+        body { font-family: sans-serif; background: var(--bg); color: var(--text); margin: 0; padding-bottom: 160px; }
+        header { text-align: center; padding: 20px; border-bottom: 2px solid var(--primary); background: linear-gradient(180deg, #1b3d16 0%, #0a0a0a 100%); }
+        .container { max-width: 1000px; margin: auto; padding: 20px; }
+        .category-header { background: var(--primary); padding: 12px; border-radius: 8px; margin: 30px 0 15px 0; font-weight: 800; border-left: 5px solid var(--accent); }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 15px; }
+        .product-card { background: var(--card); border-radius: 12px; padding: 20px; border: 1px solid #222; position: relative; }
+        .sold-out { opacity: 0.4; filter: grayscale(1); pointer-events: none; }
+        .sold-out-badge { position: absolute; top: 10px; right: 10px; background: red; color: white; padding: 5px 10px; font-weight: 900; border-radius: 4px; font-size: 0.7rem; z-index: 10; }
+        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 15px; }
+        .opt-btn { background: #2a2a2a; color: #fff; border: 1px solid #444; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; text-align: center; font-size: 0.85rem; }
+        .opt-btn:hover { background: var(--accent); color: #000; }
+        .price { font-size: 1.4rem; color: var(--accent); font-weight: 800; }
+        .add-btn { background: var(--accent); color: #000; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .cart-footer { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(10,10,10,0.98); border-top: 2px solid var(--primary); padding: 25px; z-index: 1000; }
+        .order-btn { background: #fff; color: #000; padding: 12px 24px; border-radius: 8px; font-weight: 900; cursor: pointer; border: none; }
+    </style>
+</head>
+<body>
+
+<header><h1>BtownGas</h1></header>
+
+<div class="container">
+    <div class="category-header">🌸 Flower ($130oz)</div>
+    <div id="flower-grid" class="grid"></div>
+    <div class="category-header">🛒 Carts & Disposables</div>
+    <div id="cart-grid" class="grid"></div>
+    <div class="category-header">🍯 Concentrates</div>
+    <div id="concentrate-grid" class="grid"></div>
+    <div class="category-header">🍬 Edibles</div>
+    <div id="edible-grid" class="grid"></div>
+    <div class="category-header">🚬 Nic & Prerolls</div>
+    <div id="nic-grid" class="grid"></div>
+</div>
+
+<div class="cart-footer">
+    <div id="cart-preview" style="text-align:center; color:var(--snap); margin-bottom:10px; font-weight:bold;">Bag is empty</div>
+    <div style="display: flex; justify-content: space-between; max-width: 900px; margin: auto; align-items: center;">
+        <div style="font-size: 1.8rem; font-weight: 900;">Total: $<span id="total">0</span></div>
+        <button class="order-btn" onclick="copyOrder()">📋 COPY ORDER</button>
+    </div>
+</div>
+
+<script>
+    const products = [
+        // FLOWER (Cinderella 99 Removed)
+        {cat:'flower', name:'Grape Gas', desc:'Hybrid', img:'assets/grape-gas.png', options:[{n:'3.5g',p:30},{n:'7g',p:60},{n:'14g',p:100},{n:'Oz',p:130}]},
+        {cat:'flower', name:'Cream Smoothie', desc:'Hybrid', img:'assets/cream-smoothie.png', options:[{n:'3.5g',p:30},{n:'7g',p:60},{n:'14g',p:100},{n:'Oz',p:130}]},
+        {cat:'flower', name:'White Walker', desc:'Hybrid', img:'assets/white-walker.png', options:[{n:'3.5g',p:30},{n:'7g',p:60},{n:'14g',p:100},{n:'Oz',p:130}]},
+        {cat:'flower', name:'Acai Berry', desc:'Hybrid', img:'assets/acai-berry.png', options:[{n:'3.5g',p:30},{n:'7g',p:60},{n:'14g',p:100},{n:'Oz',p:130}]},
+        {cat:'flower', name:'Pink Runtz', desc:'Hybrid', img:'assets/pink-runtz.png', options:[{n:'3.5g',p:30},{n:'7g',p:60},{n:'14g',p:100},{n:'Oz',p:130}]},
+        {cat:'flower', name:'Strawberry Pie', desc:'Hybrid', img:'assets/strawberry-pie.png', options:[{n:'3.5g',p:30},{n:'7g',p:60},{n:'14g',p:100},{n:'Oz',p:130}]},
+        {cat:'flower', name:'Blue Lobster', desc:'Indoor', img:'assets/blue-lobster.png', options:[{n:'3.5g',p:30},{n:'7g',p:60},{n:'14g',p:100},{n:'Oz',p:130}]},
+
+        // CARTS & DISPOSABLES
+        {cat:'cart', name:'Whole Melt 2g Dual', price:40, desc:'Liquid Diamonds', img:'assets/whole-melt.png'},
+        {cat:'cart', name:'Big Chief 2g Dual', price:40, desc:'Liquid Diamonds', img:'assets/big-chief.png'},
+        {cat:'cart', name:'Deja Vu 2g Dual', price:40, desc:'Digital Blinker', img:'assets/dejavu-dual.png'},
+        {cat:'cart', name:'Deja Vu 1g Resin', price:35, desc:'Live Resin', img:'assets/dejavu-resin.png'},
+        {cat:'cart', name:'Cadillac .5g Cart', price:35, desc:'Live Resin', img:'assets/cadillac.png'},
+        {cat:'cart', name:'Boutique v5 Triple', price:40, desc:'Sold Out', img:'assets/boutique.png', soldOut:true},
+
+        // CONCENTRATES
+        {cat:'concentrate', name:'Maine Live Sugars', price:35, desc:'Extract', img:'assets/sugars.png'},
+        {cat:'concentrate', name:'Maine Live Badders', price:40, desc:'Extract', img:'assets/badders.png'},
+
+        // EDIBLES
+        {cat:'edible', name:'Deja Vu Muddy Buddies', price:5, desc:'1000mg', img:'assets/muddy-buddies.png'},
+        {cat:'edible', name:'THC Gallon', price:50, desc:'10,000mg Nano', img:'assets/gallon.png'},
+        {cat:'edible', name:'Freeze Pops', price:5, desc:'Sold Out', img:'assets/ice-pops.png', soldOut:true},
+
+        // NIC & PREROLLS
+        {cat:'nic', name:'Geek Bar 25k', price:40, desc:'Disposable Nic', img:'assets/geekbar.png'},
+        {cat:'nic', name:'Adjust 40k Mycool', price:40, desc:'Disposable Nic', img:'assets/adjust.png'},
+        {cat:'nic', name:'BC800', price:35, desc:'Disposable Nic', img:'assets/bc800.png'},
+        {cat:'nic', name:'Coastal Maine Preroll', price:10, desc:'1g Dispensary', img:'assets/coastal.png'},
+        {cat:'nic', name:'Premium Preroll', price:5, desc:'1g House', img:'assets/premium.png'}
+    ];
+
+    function init() {
+        products.forEach(p => {
+            const grid = document.getElementById(p.cat + '-grid');
+            if(!grid) return;
+            const card = document.createElement('div');
+            card.className = `product-card ${p.soldOut ? 'sold-out' : ''}`;
+            card.innerHTML = `
+                ${p.soldOut ? '<div class="sold-out-badge">SOLD OUT</div>' : ''}
+                <img src="${p.img}" onerror="this.src='https://via.placeholder.com/150'" style="width:100%; height:140px; object-fit:cover; border-radius:8px; margin-bottom:10px;">
+                <p style="margin:0; font-weight:bold;">${p.name}</p>
+                <p style="color:#888; font-size:0.75rem; margin:4px 0 12px 0;">${p.desc}</p>
+                ${p.options ? `<div class="options-grid">${p.options.map(o => `<button class="opt-btn" onclick="add('${p.name} (${o.n})', ${o.p})">${o.n}<br>$${o.p}</button>`).join('')}</div>` : 
+                `<div style="display:flex; justify-content:space-between; align-items:center;"><span class="price">$${p.price}</span><button class="add-btn" onclick="add('${p.name}', ${p.price})">+ Add</button></div>`}`;
+            grid.appendChild(card);
+        });
+    }
+    
+    let cart = []; let total = 0;
+    function add(n, p) { 
+        cart.push(n); total += p; 
+        document.getElementById('total').innerText = total; 
+        document.getElementById('cart-preview').innerText = "✅ Added " + n; 
+    }
+    function copyOrder() {
+        if(cart.length === 0) return;
+        navigator.clipboard.writeText(`ORDER:\n` + cart.join('\n') + `\nTOTAL: $${total}`);
+        alert("🔥 Order Copied! Now paste it on Snapchat.");
+    }
+    window.onload = init;
+</script>
+</body>
+</html>
